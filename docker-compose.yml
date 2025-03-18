@@ -13,6 +13,29 @@ services:
       context: .
     ports:
       - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - POSTGRES_URL=jdbc:postgresql://db:5432/petclinic
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=petclinic
+      - POSTGRES_USER=petclinic
+      - POSTGRES_PASSWORD=petclinic
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "petclinic"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+volumes:
+  db-data:
 
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to
